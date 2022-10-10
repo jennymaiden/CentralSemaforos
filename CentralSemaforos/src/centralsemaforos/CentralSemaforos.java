@@ -5,7 +5,6 @@
 package centralsemaforos;
 
 import java.io.IOException;
-import logica.SistemaServidor;
 import presentacion.Modelo;
 
 /**

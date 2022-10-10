@@ -5,6 +5,7 @@
 package presentacion;
 
 import java.io.PrintStream;
+import persistencia.CicloSemaforico;
 import logica.ConexionServidor;
 
 /**
@@ -49,8 +50,13 @@ public class Modelo {
     }
     
     public void iniciarSecuencia() {
-        // Leer los datos 
-        enviarMsg("los datos son");
+        // Leer los datos de conexion
+        CicloSemaforico ciclo = new CicloSemaforico(servidor);
+        //ciclo.getMatriz();
+        int[][] matriz = ciclo.getPlanDesconexion();
+        ciclo.getControlTiempoConexion(matriz);
+        //ciclo.getPlanDesconexion();
+        //enviarMsg("los datos son");
         //Respuesta del cliente
         
         

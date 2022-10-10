@@ -4,7 +4,6 @@
  */
 package logica;
 
-import static centralsemaforos.testServidor.mostrarTexto;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -112,6 +111,10 @@ public class ConexionServidor {
 //            enviar(escaner.nextLine());
 //        }
 //    }
+    
+    public static void mostrarTexto(String s) {
+        System.out.println(s);
+    }
     
     public String getHost() {
         return host;
