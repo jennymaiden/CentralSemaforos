@@ -23,6 +23,10 @@ public class CicloSemaforico {
     private final ConexionServidor servidor;
 
     private final String path = "/Users/cvelez/Documents/Personal/Especializacion/Informatica 1/gitSemaforo/servidores/CentralSemaforos/src/persistencia/";
+    
+    public Timer tiempoConexion = new Timer();
+    public Timer tiempoCiclo = new Timer();
+    public Timer tiempoDesconexion = new Timer();
 
     public CicloSemaforico(ConexionServidor servidor) {
         this.servidor = servidor;
@@ -30,11 +34,11 @@ public class CicloSemaforico {
 
     
     // Este metodo lee el archivo de plan de conexion y vuelve la informacion en una matriz de 4 x 16
-    public int[][] getPlanDesconexion() {
+    public int[][] getLeerArchivo(String nombreArchivo) {
         int[][] matriz;
 
         try {
-            BufferedReader br = new BufferedReader(new FileReader(path + "PlanConexion.txt"));
+            BufferedReader br = new BufferedReader(new FileReader(path + nombreArchivo));
             //Primera linea nos dice longitud de la matriz
             String linea = br.readLine();
             //System.out.println("linea : " + linea);
@@ -88,17 +92,16 @@ public class CicloSemaforico {
 
     // Traer la informacion por grupo que tiene en cada x segundo
     public JSONArray getSenalSegundo(int[][] matriz, int segundo) {
-        //System.out.println(matriz.length);
+        
         JSONArray jsonArray = new JSONArray();
         for (int j = 0; j < matriz.length; j++) {
             JSONObject json = new JSONObject();
             json.put("idGrupo", matriz[j][0]);
             json.put("senal", matriz[j][segundo]);
-            //System.out.print("Grupo "+matriz[j][0] );
-            //System.out.print("senal "+matriz[j][segundo]);
+         
             jsonArray.add(json);
         }
-        System.out.println("segundo: "+segundo+" enviar " + jsonArray.toJSONString());
+        //System.out.println("segundo: "+segundo+" enviar " + jsonArray.toJSONString());
         return jsonArray;
     }
 
@@ -139,9 +142,175 @@ public class CicloSemaforico {
             }
         };
 
-        Timer timer = new Timer();
+        //Timer timer = new Timer();
         // Dentro de 0 milisegundos avísame cada 1000 milisegundos
-        timer.scheduleAtFixedRate(timerTask, 0, 1000);
+        tiempoConexion.scheduleAtFixedRate(timerTask, 0, 1000);
+    }
+    
+    // Recorre el tiempo del ciclo semaforico completo y se repite hasta que alla alguna interupcion
+    // Ciclo dura 90 segundos y vuelve a empezar
+    public void getControlTiempoSemaforo(int[][] matriz) {
+        TimerTask timerTask = new TimerTask() {
+            int cicloConexion = 90; // 90 segundos dura el ciclo de conexion
+            int segundo = 0;
+            JSONArray jsonArray = new JSONArray();
+
+            public void run() {
+                // Aquí el código que queremos ejecutar.
+                //System.out.println("segundo "+segundo);
+                switch (segundo) {
+                    case 0:
+                        //Enviar primer grupo de conexion
+                        jsonArray = getSenalSegundo(matriz, segundo + 1);
+                        servidor.enviar(jsonArray.toJSONString());
+                        break;
+                    case 2:
+                        //Enviar cambio
+                        jsonArray = getSenalSegundo(matriz, segundo + 1);
+                        servidor.enviar(jsonArray.toJSONString());
+                        break;
+                    case 4:
+                        //Enviar otro cambio
+                        jsonArray = getSenalSegundo(matriz, segundo + 1);
+                        servidor.enviar(jsonArray.toJSONString());
+                        break;
+                    case 6:
+                        //Enviar otro cambio
+                        jsonArray = getSenalSegundo(matriz, segundo + 1);
+                        servidor.enviar(jsonArray.toJSONString());
+                        break;
+                    case 9:
+                        //Enviar otro cambio
+                        jsonArray = getSenalSegundo(matriz, segundo + 1);
+                        servidor.enviar(jsonArray.toJSONString());
+                        break;
+                    case 10:
+                        //Enviar otro cambio
+                        jsonArray = getSenalSegundo(matriz, segundo + 1);
+                        servidor.enviar(jsonArray.toJSONString());
+                        break;
+                    case 11:
+                        //Enviar otro cambio
+                        jsonArray = getSenalSegundo(matriz, segundo + 1);
+                        servidor.enviar(jsonArray.toJSONString());
+                        break;
+                    case 49:
+                        //Enviar otro cambio
+                        jsonArray = getSenalSegundo(matriz, segundo + 1);
+                        servidor.enviar(jsonArray.toJSONString());
+                        break;
+                    case 51:
+                        //Enviar otro cambio
+                        jsonArray = getSenalSegundo(matriz, segundo + 1);
+                        servidor.enviar(jsonArray.toJSONString());
+                        break;
+                    case 53:
+                        //Enviar otro cambio
+                        jsonArray = getSenalSegundo(matriz, segundo + 1);
+                        servidor.enviar(jsonArray.toJSONString());
+                        break;
+                    case 56:
+                        //Enviar otro cambio
+                        jsonArray = getSenalSegundo(matriz, segundo + 1);
+                        servidor.enviar(jsonArray.toJSONString());
+                        break;
+                    case 57:
+                        //Enviar otro cambio
+                        jsonArray = getSenalSegundo(matriz, segundo + 1);
+                        servidor.enviar(jsonArray.toJSONString());
+                        break;
+                    case 58:
+                        //Enviar otro cambio
+                        jsonArray = getSenalSegundo(matriz, segundo + 1);
+                        servidor.enviar(jsonArray.toJSONString());
+                        break;
+                   
+                    case 90:
+                        //Iniciar ciclo
+                        System.out.println("termino");
+                        segundo = 0;
+                        
+                        break;
+                    case 100:
+                        //Interumpir ciclo
+                        System.out.println("Interumpir ciclo");
+                        segundo = 0;
+                        cancel();
+                        break;
+                }
+                segundo++;
+            }
+        };
+
+        
+        // Dentro de 0 milisegundos avísame cada 1000 milisegundos
+        tiempoCiclo.scheduleAtFixedRate(timerTask, 0, 1000);
     }
 
+    // Recorre el tiempo de desconexion del semaforos
+    // Ciclo dura 13 segundos y se apaga todo
+    public void getControlTiempoDesconexion(int[][] matriz) {
+        TimerTask timerTask = new TimerTask() {
+            int cicloConexion = 13; // 13 segundos dura el ciclo de desconexion
+            int segundo = 0;
+            JSONArray jsonArray = new JSONArray();
+
+            public void run() {
+                // Aquí el código que queremos ejecutar.
+                //System.out.println("segundo "+segundo);
+                switch (segundo) {
+                    case 0:
+                        //Enviar primer grupo de conexion
+                        jsonArray = getSenalSegundo(matriz, segundo + 1);
+                        servidor.enviar(jsonArray.toJSONString());
+                        break;
+                    case 5:
+                        //Enviar cambio
+                        jsonArray = getSenalSegundo(matriz, segundo + 1);
+                        servidor.enviar(jsonArray.toJSONString());
+                        break;
+                    
+                    case 14:
+                        //Iniciar ciclo
+                        System.out.println("termino");
+                        jsonArray = getSenalSegundo(matriz, segundo + 1);
+                        servidor.enviar(jsonArray.toJSONString());
+                        segundo = 0;
+                        cancel();
+                        break;
+                }
+                segundo++;
+            }
+        };
+
+        // Dentro de 0 milisegundos avísame cada 1000 milisegundos
+        tiempoDesconexion.scheduleAtFixedRate(timerTask, 0, 1000);
+    }
+
+    public Timer getTiempoConexion() {
+        return tiempoConexion;
+    }
+
+    public void setTiempoConexion(Timer tiempoConexion) {
+        this.tiempoConexion = tiempoConexion;
+    }
+
+    public Timer getTiempoCiclo() {
+        return tiempoCiclo;
+    }
+
+    public void setTiempoCiclo(Timer tiempoCiclo) {
+        this.tiempoCiclo = tiempoCiclo;
+    }
+
+    public Timer getTiempoDesconexion() {
+        return tiempoDesconexion;
+    }
+
+    public void setTiempoDesconexion(Timer tiempoDesconexion) {
+        this.tiempoDesconexion = tiempoDesconexion;
+    }
+    
+    
+    
 }

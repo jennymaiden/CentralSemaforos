@@ -25,8 +25,8 @@ public class ConexionServidor {
     private DataOutputStream bufferDeSalida = null;
     protected String mensajeServidor; //Mensajes entrantes (recibidos) en el servidor
     Scanner escaner = new Scanner(System.in);
-    final String COMANDO_TERMINACION = "salir()";
-    
+    final String COMANDO_TERMINACION = "error";
+
     public void levantarConexion(int puerto) {
         try {
             socketServidor = new ServerSocket(puerto);
@@ -55,18 +55,20 @@ public class ConexionServidor {
             do {
                 st = (String) bufferDeEntrada.readUTF();
                 mostrarTexto("\n[Cliente] => " + st);
+                
                 //System.out.print("\n[Usted] => ");
             } while (!st.equals(COMANDO_TERMINACION));
         } catch (IOException e) {
             cerrarConexion();
         }
-      
+
     }
-    
+
     public void enviar(String s) {
         try {
             bufferDeSalida.writeUTF(s);
             bufferDeSalida.flush();
+            mostrarTexto("\n[Servidor] => " + s);
         } catch (IOException e) {
             mostrarTexto("IOException on enviar");
 
@@ -86,8 +88,9 @@ public class ConexionServidor {
 
         }
     }
-    
+
     public void ejecutarConexion(int puerto) {
+
         Thread hilo = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -111,11 +114,10 @@ public class ConexionServidor {
 //            enviar(escaner.nextLine());
 //        }
 //    }
-    
     public static void mostrarTexto(String s) {
         System.out.println(s);
     }
-    
+
     public String getHost() {
         return host;
     }

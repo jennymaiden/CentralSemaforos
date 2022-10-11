@@ -30,10 +30,12 @@ public class ControladorSimulacion implements ActionListener{
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() instanceof JButton) {
             JButton btnButton = (JButton) e.getSource();
-            if (btnButton == simulacion.getBtn_Conexion1()){
+            if(btnButton == simulacion.getBtn_Conexion1()){
                 
-            }else if (btnButton == simulacion.getBtn_Iniciar1()) {
+            }else if(btnButton == simulacion.getBtn_Iniciar1()) {
                 getModelo().iniciarSecuencia();
+            }else if(btnButton == simulacion.getBtn_detener1()) {
+                getModelo().detenerSecuencia();
             }
         }
     }
